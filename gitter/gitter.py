@@ -3,51 +3,48 @@ from pprint import pprint as pp
 import pandas as pd
 
 #Create instance
-token = open('gtoken.txt').readline().strip()
-gitter = GitterClient(token)
-
-#Check ID
-# print(gitter.auth.get_my_id)
-#
-# #Get a list of messages has usercout
-# print(gitter.rooms_list)
+# token = open('gtoken.txt").readline().strip()
+gitter = GitterClient(open('gtoken.txt').readline().strip())
 
 #Raw chat JSON Data
-chatData = gitter.messages.list('Buildly/community')
+chat_data = gitter.messages.list('Buildly/community')
 
-def getChatRawData():
-    '''Gets the raw data from chat for testing purposes'''
+def check_ID():
+    '''Checks to see if the correct user is signed in and prints'''
 
-    for x in chatData:
-        pp(x)
+    print(gitter.auth.get_my_id)
 
-def getChatMeta():
+def get_chat_raw_data():
+    '''Prints the raw data from chat for testing purposes'''
+
+    for meta in chat_data:
+        pp(meta)
+
+def get_chat_meta():
     '''Gets that gitter chat metadata and returns it as a dict'''
 
-    chatMetaData = []
+    chat_meta_data = []
 
-    for x in chatData:
-        chatMetaDict = {}
-        chatMetaDict['username'] = x['fromUser']['username']
-        chatMetaDict['readby'] = x['readBy']
-        chatMetaDict['timesent'] = x['sent'].split('T')[0] # T represents the time sent - split on T to get the date
-        chatMetaDict['text'] = x['text']
-        chatMetaData.append(chatMetaDict)
+    for meta in chat_data:
+        chat_meta_dict = {}
+        chat_meta_dict['username'] = meta['fromUser']['username']
+        chat_meta_dict['readby'] = meta['readBy']
+        chat_meta_dict['timesent'] = meta['sent'].split('T')[0] # T represents the 00:00 time sent - split on T to get the date
+        chat_meta_dict['text'] = meta['text']
+        chat_meta_data.append(chat_meta_dict)
 
-    df = pd.DataFrame(chatMetaData)
+    df = pd.DataFrame(chat_meta_data)
     df.set_index('timesent', inplace=True)
 
     return df
 
-def getUniqueUsers():
+def get_unique_users():
     '''Returns the unique users who has chatted in the room since creation'''
 
-    uniqueUsers = []
-    holder = []
+    #Gets usernames of people who have chatted from the beginning of time
+    holder = [x['fromUser']['username'] for x in chatData]
 
-    #Gets usernames of people who have chatted
-    [holder.append(x['fromUser']['username']) for x in chatData]
+    #Deletes duplicates to get unique users who have chat
+    unique_users = list(dict.fromkeys(holder))
 
-    #deletes duplicates to get unique users who have chat
-    [uniqueUsers.append(i) for i in holder if i not in uniqueUsers]
-    return uniqueUsers
+    return unique_users

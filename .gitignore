@@ -3,3 +3,4 @@ __pycache__
 gittercreds.txt
 secret.json
 gtoken.txt
+analytics-env

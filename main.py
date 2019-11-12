@@ -2,6 +2,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from pprint import pprint as pp
 from gitter import gitter
+import pandas as pd
+from gspread_dataframe import get_as_dataframe, set_with_dataframe
+from github_analytics import retrieve_repo_data
 
 if __name__ == '__main__':
     #Load in the credentials & authorize client
@@ -9,17 +12,26 @@ if __name__ == '__main__':
     creds = ServiceAccountCredentials.from_json_keyfile_name("secret.json", scope)
     client = gspread.authorize(creds)
 
-    #gitter sheet indexed by 0
-    gs = client.open("Buildly Analytics").get_worksheet(1)
+    '''Indexed by 0
+    Main 0
+    Gitter 1
+    Github 2
+    Data Studio 3 '''
 
+    #Sets gitter worksheet
+    gitter_worksheet = client.open("Buildly Analytics").get_worksheet(1)
 
+    #Gets gitter chat metadata
+    gitter_meta_data = gitter.get_chat_meta()
 
-    #Gets chat metadata
-    metaData = gitter.getChatMeta()
+    #Sets github worksheet
+    github_worksheet = client.open("Buildly Analytics").get_worksheet(2)
 
-    #Prints metaData
-    print(metaData)
+    #Gets github chat metadata
+    github_meta_data = retrieve_repo_data.get_github_meta()
 
+    #Writes to the gitter google sheet
+    set_with_dataframe(gitter_worksheet, gitter_meta_data )
 
-    # TODO:
-    #   Write to Google Sheets
+    #Writes to the github google sheet
+    set_with_dataframe(github_worksheet, github_meta_data)
