@@ -3,8 +3,7 @@ from pprint import pprint as pp
 import pandas as pd
 
 #Create instance
-# token = open('gtoken.txt").readline().strip()
-gitter = GitterClient(open('gtoken.txt').readline().strip())
+# token = GitterClient(open('gtoken.txt").readline().strip())
 
 #Raw chat JSON Data
 chat_data = gitter.messages.list('Buildly/community')
@@ -29,12 +28,11 @@ def get_chat_meta():
         chat_meta_dict = {}
         chat_meta_dict['username'] = meta['fromUser']['username']
         chat_meta_dict['readby'] = meta['readBy']
-        chat_meta_dict['timesent'] = meta['sent'].split('T')[0] # T represents the 00:00 time sent - split on T to get the date
+        chat_meta_dict['timestamp'] = meta['sent'].split('T')[0] # T represents the 00:00 time sent - split on T to get the date
         chat_meta_dict['text'] = meta['text']
         chat_meta_data.append(chat_meta_dict)
 
     df = pd.DataFrame(chat_meta_data)
-    df.set_index('timesent', inplace=True)
 
     return df
 
